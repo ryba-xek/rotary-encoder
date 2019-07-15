@@ -1,7 +1,5 @@
-# Rotary encoder
+# rotation-sensor
 Multipole AS5047D motor shaft sensor emulating standard UVW hall effect sensor signals
-
-Please note, that AS5047d position is shifted by 1mm from the center of the board.
 
 Emulates Hall sensors UVW signals for 14-pole BLDC motor.
 
