@@ -72,46 +72,55 @@ void test_calcDist() {
 }
 
 void test_calcSector() {
-    // hyst = 0
-    TEST_ASSERT_EQUAL(83, calcSector(83, 16379, 0));
-    TEST_ASSERT_EQUAL(83, calcSector(0, 16379, 0));
-    TEST_ASSERT_EQUAL(0, calcSector(0, 0, 0));
-    TEST_ASSERT_EQUAL(0, calcSector(83, 0, 0));
-    TEST_ASSERT_EQUAL(0, calcSector(83, 194, 0));
-    TEST_ASSERT_EQUAL(1, calcSector(83, 195, 0));
-    TEST_ASSERT_EQUAL(1, calcSector(0, 195, 0));
-    TEST_ASSERT_EQUAL(1, calcSector(1, 195, 0));
-    TEST_ASSERT_EQUAL(0, calcSector(1, 194, 0));
-    TEST_ASSERT_EQUAL(1, calcSector(0, 389, 0));
-    TEST_ASSERT_EQUAL(2, calcSector(0, 390, 0));
+    // no hysteresis
+    uint16_t hyst = 0;
+    TEST_ASSERT_EQUAL(83, calcSector(83, 16379, hyst));
+    TEST_ASSERT_EQUAL(83, calcSector(0, 16379, hyst));
+    TEST_ASSERT_EQUAL(0, calcSector(0, 0, hyst));
+    TEST_ASSERT_EQUAL(0, calcSector(83, 0, hyst));
+    TEST_ASSERT_EQUAL(0, calcSector(83, 194, hyst));
+    TEST_ASSERT_EQUAL(1, calcSector(83, 195, hyst));
+    TEST_ASSERT_EQUAL(1, calcSector(0, 195, hyst));
+    TEST_ASSERT_EQUAL(1, calcSector(1, 195, hyst));
+    TEST_ASSERT_EQUAL(0, calcSector(1, 194, hyst));
+    TEST_ASSERT_EQUAL(1, calcSector(0, 389, hyst));
+    TEST_ASSERT_EQUAL(2, calcSector(0, 390, hyst));
 
     // skipping
-    TEST_ASSERT_EQUAL(0, calcSector(83, 193, 0));
-    TEST_ASSERT_EQUAL(0, calcSector(83, 194, 0));
-    TEST_ASSERT_EQUAL(1, calcSector(83, 195, 0));
-    TEST_ASSERT_EQUAL(1, calcSector(83, 196, 0));
-    TEST_ASSERT_EQUAL(0, calcSector(1, 1, 0));
-    TEST_ASSERT_EQUAL(0, calcSector(1, 0, 0));
-    TEST_ASSERT_EQUAL(83, calcSector(1, 16379, 0));
-    TEST_ASSERT_EQUAL(83, calcSector(1, 16378, 0));
+    TEST_ASSERT_EQUAL(0, calcSector(83, 193, hyst));
+    TEST_ASSERT_EQUAL(0, calcSector(83, 194, hyst));
+    TEST_ASSERT_EQUAL(1, calcSector(83, 195, hyst));
+    TEST_ASSERT_EQUAL(1, calcSector(83, 196, hyst));
+    TEST_ASSERT_EQUAL(0, calcSector(1, 1, hyst));
+    TEST_ASSERT_EQUAL(0, calcSector(1, 0, hyst));
+    TEST_ASSERT_EQUAL(83, calcSector(1, 16379, hyst));
+    TEST_ASSERT_EQUAL(83, calcSector(1, 16378, hyst));
+    TEST_ASSERT_EQUAL(2, calcSector(0, 583, hyst));
+    TEST_ASSERT_EQUAL(2, calcSector(0, 584, hyst));
+    TEST_ASSERT_EQUAL(3, calcSector(0, 585, hyst));
 
-    // hyst = 1
-    TEST_ASSERT_EQUAL(83, calcSector(83, 16377, 1));
-    TEST_ASSERT_EQUAL(83, calcSector(83, 16378, 1));
-    TEST_ASSERT_EQUAL(83, calcSector(83, 16379, 1));
-    TEST_ASSERT_EQUAL(83, calcSector(83, 0, 1));
-    TEST_ASSERT_EQUAL(0, calcSector(83, 1, 1));
-    TEST_ASSERT_EQUAL(0, calcSector(0, 0, 1));
-    TEST_ASSERT_EQUAL(0, calcSector(0, 16379, 1));
-    TEST_ASSERT_EQUAL(83, calcSector(0, 16378, 1));
+    // hysteresis = 1
+    hyst = 1;
+    TEST_ASSERT_EQUAL(83, calcSector(83, 16377, hyst));
+    TEST_ASSERT_EQUAL(83, calcSector(83, 16378, hyst));
+    TEST_ASSERT_EQUAL(83, calcSector(83, 16379, hyst));
+    TEST_ASSERT_EQUAL(83, calcSector(83, 0, hyst));
+    TEST_ASSERT_EQUAL(0, calcSector(83, 1, hyst));
+    TEST_ASSERT_EQUAL(0, calcSector(0, 0, hyst));
+    TEST_ASSERT_EQUAL(0, calcSector(0, 16379, hyst));
+    TEST_ASSERT_EQUAL(83, calcSector(0, 16378, hyst));
 
     // skipping
-    TEST_ASSERT_EQUAL(0, calcSector(83, 194, 1));
-    TEST_ASSERT_EQUAL(0, calcSector(83, 195, 1));
-    TEST_ASSERT_EQUAL(1, calcSector(83, 196, 1));
-    TEST_ASSERT_EQUAL(1, calcSector(0, 389, 1));
-    TEST_ASSERT_EQUAL(1, calcSector(0, 390, 1));
-    TEST_ASSERT_EQUAL(2, calcSector(0, 391, 1));
+    TEST_ASSERT_EQUAL(0, calcSector(83, 194, hyst));
+    TEST_ASSERT_EQUAL(0, calcSector(83, 195, hyst));
+    TEST_ASSERT_EQUAL(1, calcSector(83, 196, hyst));
+    TEST_ASSERT_EQUAL(1, calcSector(0, 389, hyst));
+    TEST_ASSERT_EQUAL(1, calcSector(0, 390, hyst));
+    TEST_ASSERT_EQUAL(2, calcSector(0, 391, hyst));
+    TEST_ASSERT_EQUAL(2, calcSector(0, 583, hyst));
+    TEST_ASSERT_EQUAL(2, calcSector(0, 584, hyst));
+    TEST_ASSERT_EQUAL(2, calcSector(0, 585, hyst));
+    TEST_ASSERT_EQUAL(3, calcSector(0, 586, hyst));
 }
 
 int main(int argc, char **argv) {
