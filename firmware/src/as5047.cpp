@@ -1,8 +1,9 @@
-#include <SPI.h>
+#include <util/delay.h>
+#include "spi.h"
 #include "as5047.h"
 
 void initSensor() {
-    SPI.begin();
+    SPI_MasterInit();
 }
 
 SensorReply readSensor(uint16_t reg) {
@@ -10,28 +11,25 @@ SensorReply readSensor(uint16_t reg) {
     uint16_t rcvBuf;
     SensorReply result = {};
 
-    SPI.beginTransaction(SPISettings(SPI_SPEED, MSBFIRST, SPI_MODE1));
+    SPI_start_packet();
+    sendBuf = reg | 1 << 14; //bit 14 — Read operation
+    if (__builtin_parity(sendBuf)) sendBuf |= 1 << 15; // bit 15 - parity bit
+    rcvBuf = SPI_MasterTransmit(sendBuf);
+    SPI_end_packet();
 
-    digitalWrite(SS, LOW);
-    sendBuf = reg | uint16_t(bit(14)); //bit 14 — Read operation
-    if (__builtin_parity(sendBuf)) sendBuf |= bit(15); // bit 15 - parityOk bit
-    SPI.transfer16(sendBuf);
-    digitalWrite(SS, HIGH);
+    for (uint8_t i = 0; i < 5; i++) asm volatile("nop"); //350 ns delay
+//    _delay_us(1);
 
-    delayMicroseconds(10);
+    SPI_start_packet();
+    rcvBuf = SPI_MasterTransmit(0x0000);
+    SPI_end_packet();
 
-    digitalWrite(SS, LOW);
-//    sendBuf = REG_NOP | bit(14); //bit 14 — Read operation
-//    if (__builtin_parity(sendBuf)) sendBuf |= bit(15); // bit 15 - parityOk bit
-    rcvBuf = SPI.transfer16(0x0000);
-    digitalWrite(SS, HIGH);
-
-    bool parityOk = __builtin_parity(rcvBuf & 0x7FFF) == bitRead(rcvBuf, 15);
-    bool error = bitRead(rcvBuf, 14) == 1;
+    bool parityOk = __builtin_parity(rcvBuf & 0x7FFF) == ((rcvBuf >> 15) & 1);
+    bool error = ((rcvBuf >> 14) & 1) == 1;
     result.success = parityOk && !error;
     result.data = rcvBuf & 0x3FFF;
 
-    SPI.endTransaction();
+//    SPI_end_packet();
 
     return result;
 }

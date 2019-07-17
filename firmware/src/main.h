@@ -6,24 +6,30 @@
 #define ROTARY_ENCODER_MAIN_H
 
 #include <stdint.h>
+#include <avr/io.h>
 
-#define PIN_LED1  PIN_A0
-#define PIN_LED2  PIN_A1
-#define PIN_W PIN_A2
-#define PIN_V PIN_A3
-#define PIN_U PIN_A4
+#define PIN_LED1  PINC0
+#define PIN_LED2  PINC1
+#define PIN_W     PINC2
+#define PIN_V     PINC3
+#define PIN_U     PINC4
 
-#define HYSTERESIS 2 // should be significantly lower than 195/2
-#define ZERO_SHIFT -1450 // should be significantly lower than 195/2
+#define HYSTERESIS 1 // measured noise is around +/- 2.5, so 1—3 is recommended value
+#define ZERO_SHIFT -1450
+
+#define USART_BAUDRATE 115200
+#define BAUD_PRESCALE ((F_CPU / 4 / USART_BAUDRATE - 1) / 2)
 
 uint8_t UVWVALUES[7] = {
-        0b100,
-        0b101,
-        0b001,
-        0b011,
-        0b010,
-        0b110,
-        0b000, //error
+        0b10000,
+        0b10100,
+        0b00100,
+        0b01100,
+        0b01000,
+        0b11000,
+        0b00000, //error
 };
+
+uint8_t calcSector(uint8_t currSector, uint16_t angle);
 
 #endif //ROTARY_ENCODER_MAIN_H
