@@ -62,7 +62,7 @@ int main(void)
 
         r = readSensorAngle();
         if (r.success) {
-            sector = calcSector(sector, r.data, HYSTERESIS);
+            sector = calcSector(sector, normalizeAngle(r.data), HYSTERESIS);
         }
 
 //        if (cycle >= 5000) {

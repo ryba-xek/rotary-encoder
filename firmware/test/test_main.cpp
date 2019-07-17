@@ -1,19 +1,8 @@
-/*
- Copyright (c) 2014-present PlatformIO <contact@platformio.org>
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-    http://www.apache.org/licenses/LICENSE-2.0
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-**/
-
 #include <stdint.h>
 #include <angledsp.h>
 #include <unity.h>
+#include <stdio.h>
+#include <string.h>
 
 void test_normalizeAngle() {
     // 1/4 0..4095 -> 0..4094
@@ -123,11 +112,60 @@ void test_calcSector() {
     TEST_ASSERT_EQUAL(3, calcSector(0, 586, hyst));
 }
 
+void test_rotation() {
+    uint16_t sectorsSeen[85] = {};
+    uint8_t sector = 0;
+    char buf[256];
+
+    // perform one full forward rotation
+    for (uint16_t angle = 20; angle < (0x3FFF+20); angle++) {
+        uint16_t n = normalizeAngle((angle >= 0x3FFF) ? (angle - 0x3FFF) : angle);
+        sector = calcSector(sector, n, 0);
+        sectorsSeen[sector]++;
+    }
+
+    for (uint8_t s = 0; s < 83; s++) {
+        if (s == 20 || s == 41|| s == 62 || s == 83) {
+            sprintf(buf, "Sector %u was seen %u times, should be 196" , s, sectorsSeen[s]);
+            TEST_ASSERT_EQUAL_MESSAGE(196, sectorsSeen[s], buf);
+        } else {
+            sprintf(buf, "Sector %u was seen %u times, should be 195" , s, sectorsSeen[s]);
+            TEST_ASSERT_EQUAL_MESSAGE(195, sectorsSeen[s], buf);
+        }
+    }
+
+    TEST_ASSERT_EQUAL(0, sectorsSeen[84]);
+
+    // zero sectorsSeen
+    memset(&sectorsSeen, 0, sizeof(sectorsSeen));
+    sector=0;
+
+    // perform one full backward rotation
+    for (uint16_t angle = 0x3FFF+20; angle > 20; angle--) {
+        uint16_t n = normalizeAngle((angle >= 0x3FFF) ? (angle - 0x3FFF) : angle);
+        sector = calcSector(sector, n, 0);
+        sectorsSeen[sector]++;
+    }
+
+    for (uint8_t s = 0; s < 83; s++) {
+        if (s == 20 || s == 41|| s == 62 || s == 83) {
+            sprintf(buf, "Sector %u was seen %u times, should be 196" , s, sectorsSeen[s]);
+            TEST_ASSERT_EQUAL_MESSAGE(196, sectorsSeen[s], buf);
+        } else {
+            sprintf(buf, "Sector %u was seen %u times, should be 195" , s, sectorsSeen[s]);
+            TEST_ASSERT_EQUAL_MESSAGE(195, sectorsSeen[s], buf);
+        }
+    }
+
+    TEST_ASSERT_EQUAL(0, sectorsSeen[84]);
+}
+
 int main(int argc, char **argv) {
     UNITY_BEGIN();
     RUN_TEST(test_normalizeAngle);
     RUN_TEST(test_calcDist);
     RUN_TEST(test_calcSector);
+    RUN_TEST(test_rotation);
     UNITY_END();
 
     return 0;
